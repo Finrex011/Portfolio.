@@ -1,0 +1,52 @@
+function setQuest(p: player, t: text, xp: integer, coins: integer):
+  send "" to {_p}
+  send "&e&lOBJECTIVE" to {_p}
+  send "" to {_p}
+  send "&7%{_t}%" to {_p}
+  send "" to {_p}
+  play sound "block.note_block.pling" for {_p}
+  set {shownobjective::%{_p}'s uuid%} to {_t} 
+  set {coinsreward::%{_t}%::%{_p}%'s uuid} to {_coins}
+  set {xpreward::%{_t}%::%{_p}%'s uuid} to {_xp}
+  add {_t} to {quests::%{_p}'s uuid%::*}
+
+
+function questComplete(p: player, t: text):
+  send "" to {_p}
+  send "&e&lOBJECTIVE COMPLETE" to {_p}
+  send "" to {_p}
+  send "&7Rewards:" to {_p}
+  send "" to {_p}
+  send "&8+ &6%{coinsreward::%{_t}%::%{_p}%'s uuid}% Coins" to {_p}
+  send "&8+ &3%{xpreward::%{_t}%::%{_p}%'s uuid}% Global EXP" to {_p}
+  send "" to {_p}
+  play sound "ui.toast.challenge_complete" for {_p}
+
+  remove all {_t} from {quests::%{_p}'s uuid%::*}
+  add {coinsreward::%{_t}%::%{_p}%'s uuid} to {_p}'s purse
+  add {xpreward::%{_t}%::%{_p}%'s uuid} to {globalxp::%{_p}'s uuid%}
+  launch ball large colored yellow and orange at {_p}
+  globalLevelUp({_p})
+
+command /quests:
+  trigger:
+    set {_g} to chest inventory with 3 rows named "&8Quest Book"
+    set slot (integers between 0 and 30) of {_g} to yellow stained glass pane named " "
+    set slots 9,10,11,12,13,14,15,16,17 of {_g} to book named "&7Empty Quest Slot"
+    set {_s} to 9
+    loop {quests::%player's uuid%::*}:
+      loop-value is not "None"
+      set slot {_s} of {_g} to book named "&e%loop-value%"
+      add 1 to {_s}
+      if {_s} is 18:
+        add 100 to {_s}
+    open {_g} for the player
+
+on inventory click:
+  if name of player's inventory is "&8Quest Book":
+    cancel event
+    if event-item is book:
+      name of event-item does not contain "Empty Quest Slot"
+      set {shownquest::%player's uuid%} to uncolored name of event-item
+      play sound "block.note_block.pling" for the player
+      
