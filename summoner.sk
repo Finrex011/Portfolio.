@@ -1,0 +1,160 @@
+on right click with trident:
+  cancel event
+  player is not sneaking
+  if name of player's tool contains "Summoner's Staff":
+    set {_a} to wooden sword
+    set {_b} to custom nbt of {_a}
+
+    if raw {soulslot::%player's uuid%::%{soulslot::%player's uuid%}%::entity} contains "zombie":
+      if {-mana::%player's uuid%} < {-maxmana::%player's uuid%} / 3:
+        send "&7You are out of mana!" to the player
+        stop
+      remove {-maxmana::%player's uuid%} / 3 from {-mana::%player's uuid%}
+      spawn adult zombie at the player
+      set {_mob} to last spawned zombie
+      play sound "entity.evoker.cast_spell" at volume 10 and pitch (random number from 1 to 2) at the player
+      if {combatlevel::%player's uuid%} is 0:
+        set max health of {_mob} to 50
+        set int tag "damage" of {_b} to 10
+      else:
+        set max health of {_mob} to 50 * {combatlevel::%player's uuid%}
+        set int tag "damage" of {_b} to 10 * {combatlevel::%player's uuid%}
+
+
+    if raw {soulslot::%player's uuid%::%{soulslot::%player's uuid%}%::entity} contains "brute":
+      if {-mana::%player's uuid%} < {-maxmana::%player's uuid%} / 3:
+        send "&7You are out of mana!" to the player
+        stop
+      remove {-maxmana::%player's uuid%} / 3 from {-mana::%player's uuid%}
+      spawn adult zombie at the player
+      set {_mob} to last spawned zombie
+      set chestplate of last spawned zombie to getServerItem("brutechestplate")
+      set leggings of last spawned zombie to getServerItem("bruteleggings")
+      set boots of last spawned zombie to getServerItem("bruteboots")
+      play sound "entity.evoker.cast_spell" at volume 10 and pitch (random number from 1 to 2) at the player
+      if {combatlevel::%player's uuid%} is 0:
+        set max health of {_mob} to 150
+        set int tag "damage" of {_b} to 25
+      else:
+        set max health of {_mob} to 150 * {combatlevel::%player's uuid%}
+        set int tag "damage" of {_b} to 25 * {combatlevel::%player's uuid%}
+
+
+    set {_mob}'s tool to {_a}
+    heal {_mob}
+    set metadata value "level" of {_mob} to {combatlevel::%player's uuid%}
+    if metadata value "level" of {_mob} = 0:
+      set metadata value "level" of {_mob} to 1
+    set metadata value "displayname" of {_mob} to "&9Summoned %{soulslot::%player's uuid%::%{soulslot::%player's uuid%}%::entity} in strict proper case% &8[&e%player%&8]"
+    set metadata value "timer" of {_mob} to 60
+    set metadata value "owner" of {_mob} to the player
+    apply speed 3 without particles to {_mob} for 99 years
+    set displayname of {_mob} to "&8[&7%metadata value "level" of {_mob}%&8] %metadata value "displayname" of {_mob}% &a%health of {_mob}%&7/&a%max health of {_mob}%&c❤"
+    stop
+
+on spawn:
+  wait 1 tick
+  if name of event-entity contains "&9Summoned":
+    set {_n} to now
+    while event-entity is alive:
+      loop mobs in radius 30 of event-entity:
+        loop-entity is not event-entity or a player
+        name of loop-entity does not contain "&9Summoned"
+        loop-entity is a mob
+        add distance between loop-entity and event-entity to {_dist::mobs::*}
+      set {_dist::mobs::*} to sorted {_dist::mobs::*}
+      loop mobs in radius 20 of event-entity:    
+        if distance between loop-entity and event-entity is first element of {_dist::mobs::*}:
+          set target of event-entity to loop-entity
+      delete {_dist::mobs::*}
+      set {_owner} to metadata value "owner" of event-entity
+      if distance between event-entity and {_owner} is more than 30:
+        teleport event-entity to {_owner}
+        play sound "entity.enderman.teleport" at volume 10 and pitch (random number from 1 to 2) for {_owner}
+      wait 1 second
+      
+      if time since {_n} is more than 60 seconds:
+        delete event-entity
+        play sound "entity.evoker_fangs.attack" at volume 10 and pitch (random number from 1 to 2) for {_owner}
+        stop
+
+on entity target:
+  if entity's target is a player:
+    if name of event-entity contains "&9Summoned":
+      cancel event
+
+on spawn of chicken:
+  cancel event
+
+on shoot:
+  if event-projectile is a trident:
+    cancel event
+
+on left click with trident:
+  player is sneaking
+  if {soulslot::%player's uuid%} is not set:
+    set {soulslot::%player's uuid%} to 0
+  add 1 to {soulslot::%player's uuid%}
+  if {soulslot::%player's uuid%::%{soulslot::%player's uuid%}%::entity} is not set:
+    set {soulslot::%player's uuid%::%{soulslot::%player's uuid%}%::entity} to "None"
+  if {soulslot::%player's uuid%} > 5:
+    set {soulslot::%player's uuid%} to 1
+    if {soulslot::%player's uuid%::%{soulslot::%player's uuid%}%::entity} is not set:
+      set {soulslot::%player's uuid%::%{soulslot::%player's uuid%}%::entity} to "None"
+  send action bar "&7Soul Slot %{soulslot::%player's uuid%}%: &8[&a%{soulslot::%player's uuid%::%{soulslot::%player's uuid%}%::entityname}%&8]"
+  set {-damage::%player's uuid%} to true
+  play sound "entity.evoker.prepare_attack" at volume 10 and pitch (random number from 1 to 2) for the player
+
+command /souls:
+  trigger:
+    souls(player)
+function souls(p: player):
+  set {_g} to chest inventory with 3 rows named "&8Souls"
+  set slots (integers from 0 to 30) of {_g} to blue stained glass pane named " "
+
+  set {_a} to 1
+  set {_slot} to 11
+
+  loop 5 times:
+    if {soulslot::%{_p}'s uuid%::%{_a}%::entity} contains "None":
+      set slot {_slot} of {_g} to gray stained glass pane named "&7Empty Soul Slot" with lore "&7Click on a &aSoul Essence" and "&7in your inventory."
+    else:
+      set slot {_slot} of {_g} to ender eye named "&a%{soulslot::%{_p}'s uuid%::%{_a}%::entityname}%" with lore "&7Click to remove."
+    add 1 to {_a}
+    add 1 to {_slot}
+
+  open {_g} for {_p}
+
+on inventory click:
+  name of player's inventory contains "&8Souls"
+  if event-inventory is player's top inventory:
+    if event-slot is 11 or 12 or 13 or 14 or 15:
+      set {soulslot::%player's uuid%::%index of event-slot - 10%::entityname} to "None"
+      set {soulslot::%player's uuid%::%index of event-slot - 10%::entity} to "None"
+      souls(player)
+  else if name of event-item contains "Soul Essence":
+    set {_s} to uncolored name of event-item
+    set {_s} to lowercase {_s}
+    replace all " " and "soulessence" and "[" and "]" in {_s} with ""
+    set {_a} to 1
+    loop 5 times:
+      if {soulslot::%player's uuid%::%{_a}%::entity} does not contain "None":
+        add 1 to {_a}
+      else:
+        set {soulslot::%player's uuid%::%{_a}%::entityname} to "%{_s} in strict proper case%"
+        set {soulslot::%player's uuid%::%{_a}%::entity} to {_s}
+        add 1000 to {_a}
+    souls(player)
+    play sound "block.end_portal_frame.fill" for the player
+    
+on right click with trident:
+  player is sneaking
+  make player execute command "/souls"
+
+on death:
+  if name of victim contains "&9Summoned":
+    set {_owner} to metadata value "owner" of victim
+    play sound "entity.evoker_fangs.attack" at volume 10 and pitch (random number from 1 to 2) for {_owner}
+
+on join:
+  set {summonedmobs::%player's uuid%::summoning} to 0
