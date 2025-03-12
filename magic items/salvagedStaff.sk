@@ -1,0 +1,33 @@
+on right click with wooden shovel:
+  if name of player's tool is "&fSalvaged Staff":
+    if {-cd::salvagedstaff::%player's uuid%} is not set:
+      set {-cd::salvagedstaff::%player's uuid%} to now
+    if time since {-cd::salvagedstaff::%player's uuid%} >= 0.5 seconds:
+      if {-mana::%player's uuid%} < 10:
+        send "&7You are out of mana!" to the player
+        play sound "entity.enderman.teleport" at volume 10 and pitch 0 for the player
+        stop
+      set {_dmg} to int tag "damage" of custom nbt compound of player's tool
+      set {_cc} to int tag "critchance" of custom nbt compound of player's tool
+      set {_cd} to int tag "critdamage" of custom nbt compound of player's tool
+
+      set {-cd::salvagedstaff::%player's uuid%} to now
+      remove 10 from {-mana::%player's uuid%}
+      set {_v} to vector from player's head to block 20 blocks in front of player's head
+      set vector length of {_v} to 2
+      set {_loc} to location of player's head
+      play sound "block.bamboo.place" for the player
+      play sound "block.coral_block.place" for the player
+      loop (distance between {_loc} and block 20 blocks in front of player's head) / 0.1 times:
+        draw 5 block using dirt at {_loc} with extra 0.1
+        loop entities in radius 2 of {_loc}:
+          loop-entity is not a player or armor stand
+          {_victims::*} does not contain loop-entity
+
+          damage loop-entity by magicDamage(player, loop-entity, {_dmg}, {_cc}, {_cd})
+          damageHandling(loop-entity, magicDamage(player, loop-entity, {_dmg}, {_cc}, {_cd}), {-crit::%player's uuid%})
+	
+          add loop-entity to {_victims::*}
+          play sound "entity.experience_orb.pickup" for the player
+        set {_loc} to {_loc} ~ {_v}
+        wait 1 tick

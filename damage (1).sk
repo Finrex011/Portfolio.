@@ -1,0 +1,111 @@
+on load:
+  load yml "plugins/Skript/scripts/mobSpawning/mobs.yml" as "mobyml"
+
+function damage(p: entity, e: entity, i: integer) :: integer:
+  set {_dmg} to {_i}
+  set {_dmg} to {_dmg} * (1 + ({combatlevel::%{_p}'s uuid%}/100))
+
+  set {_cc} to (int tag "critchance" of custom nbt compound of {_p}'s tool) + 25 ? 25
+  set {_cd} to (int tag "critdamage" of custom nbt compound of {_p}'s tool) + 150 ? 150
+  set {-crit::%{_p}'s uuid%} to false
+  chance of {_cc}%:
+    set {_dmg} to {_dmg} * ({_cd}/100)
+    set {-crit::%{_p}'s uuid%} to true
+  set {_dmg} to {_dmg} / (1 + ({-defense::%{_e}'s uuid%}/100))
+
+  return {_dmg}
+
+
+function shortbowDamage(p: player, e: entity, i: integer, cc: integer, cd: integer) :: integer:
+  set {_dmg} to {_i}
+  set {_dmg} to {_dmg} * (1 + ({combatlevel::%{_p}'s uuid%}/100))
+  set {_cc} to {_cc} + 25 ? 25
+  set {_cd} to {_cd} + 150 ? 150
+  set {-crit::%{_p}'s uuid%} to false
+  chance of {_cc}%:
+    set {_dmg} to {_dmg} * ({_cd}/100)
+    set {-crit::%{_p}'s uuid%} to true
+
+  return {_dmg}
+
+
+function magicDamage(p: player, e: entity, i: integer, cc: integer, cd: integer) :: integer:
+  set {_dmg} to {_i}
+  set {_dmg} to {_dmg} * (1 + ({combatlevel::%{_p}'s uuid%}/100))
+
+  set {_cc} to {_cc} + 25 ? 25
+  set {_cd} to {_cd} + 150 ? 150
+  set {-crit::%{_p}'s uuid%} to false
+  chance of {_cc}%:
+    set {_dmg} to {_dmg} * ({_cd}/100)
+    set {-crit::%{_p}'s uuid%} to true
+
+  return {_dmg}
+
+
+
+on damage:
+  if attacker is a mob or a player:
+    victim is a player or a mob
+
+    damage cause is an attack
+
+    if boolean tag "shortbow" of custom nbt of attacker's tool is true:
+      cancel event
+      stop
+    if boolean tag "magic" of custom nbt of attacker's tool is true:
+      cancel event
+      stop
+
+    set {_dmg} to int tag "damage" of custom nbt compound of attacker's tool ? 1
+
+    set the damage to damage(attacker, victim, {_dmg})
+    wait 1 tick
+    damageHandling(victim, the damage, {-crit::%attacker's uuid%})
+
+
+
+function damageHandling(e: entity, i: integer, b: boolean):
+  set display name of {_e} to "&8[&7%metadata value "level" of {_e}%&8] %metadata value "displayname" of {_e}% &a%health of {_e}%&7/&a%max health of {_e}%&c❤"
+  set {_x} to {_e}'s x coordinate
+  set {_y} to {_e}'s y coordinate
+  set {_z} to {_e}'s z coordinate
+  add (random number from 0.7 to 1) to {_x}
+  add (random number from 0.5 to 0.6) to {_y}
+  add (random number from 0.7 to 1) to {_z}
+  spawn armor stand at location({_x}, ({_y} + 1), {_z}, world "%{_e}'s world%") with nbt nbt compound from "{Marker:1,Invisible:1}"
+  set {_a} to last spawned armor stand
+  if {_b} is true:
+    set display name of {_a} to "&c🗡%{_i}%" or "&6🗡%{_i}%" or "&e🗡%{_i}%"
+  else:
+    set display name of {_a} to "&7🗡%{_i}%"
+  push {_a} upward with speed 0.2
+  wait 0.7 seconds
+  teleport {_a} 100 blocks above {_a}'s location
+  kill {_a}
+
+
+
+on death:
+  victim is a mob
+  play sound "entity.experience_orb.pickup" for the attacker
+  set {-damage::%attacker's uuid%} to true
+  set {_n} to metadata value "name" of victim
+  set {_m} to yml value "%{_n}%.xp" from "mobyml"
+  set display name of victim to " "
+  add {_m} to {combatxp::%attacker's uuid%}
+  if {combatxp::%attacker's uuid%} > {combatxpneeded::%attacker's uuid%}:
+    wait 2 tick
+    send action bar "&3+%{_m}% Combat XP &8[&7%{combatxp::%attacker's uuid%}%/%{combatxpneeded::%attacker's uuid%}%&8]" to the attacker
+  else:
+    send action bar "&3+%{_m}% Combat XP &8[&7%{combatxp::%attacker's uuid%}%/%{combatxpneeded::%attacker's uuid%}%&8]" to the attacker
+
+
+
+on join:
+  set player's attack speed attribute to 100
+
+
+
+on item damage:
+  cancel event

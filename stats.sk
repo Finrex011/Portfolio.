@@ -1,0 +1,159 @@
+function reloaditem(i:item) :: item:
+		delete tag "defense" of custom nbt of {_i}
+		delete tag "strength" of custom nbt of {_i}
+		delete tag "damage" of custom nbt of {_i}
+		delete tag "critdamage" of custom nbt of {_i}
+		delete tag "magicfind" of custom nbt of {_i}
+		delete tag "health" of custom nbt of {_i}
+		delete tag "intel" of custom nbt of {_i}     
+		delete tag "miningspeed" of custom nbt of {_i}          
+		loop lore of {_i}:
+				if loop-value contains "&7Damage:":
+						set {_dmg} to uncolored loop-value
+						replace "Damage: " and "⚔" and "+" in {_dmg} with ""
+						set {_dmg} to {_dmg} parsed as number
+						set int tag "damage" of custom nbt of {_i} to {_dmg}
+						
+				else if loop-value contains "&7Crit Damage:":
+						set {_critdamage} to uncolored loop-value
+						replace "Crit Damage: " and "%%" and "+" in {_critdamage} with ""
+						set {_critdamage} to {_critdamage} parsed as number
+						set int tag "critdamage" of custom nbt of {_i} to {_critdamage}
+
+				else if loop-value contains "&7Defense:":
+						set {_def} to uncolored loop-value
+						replace "Defense: " and "🛡" and "+" in {_def} with ""
+						set {_def} to {_def} parsed as number
+						set int tag "defense" of custom nbt of {_i} to {_def}
+
+				else if loop-value contains "&7Strength:":
+						set {_str} to uncolored loop-value
+						replace "Strength: " and "🛡" and "+" in {_str} with ""
+						set {_str} to {_str} parsed as number
+						set int tag "strength" of custom nbt of {_i} to {_str}
+
+				else if loop-value contains "&7Crit Chance:":
+						set {_cc} to uncolored loop-value
+						replace "Crit Chance: " and "%%" and "+" in {_cc} with ""
+						set {_cc} to {_cc} parsed as number
+						set int tag "critchance" of custom nbt of {_i} to {_cc}
+
+				else if loop-value contains "&7Breaking Power":
+						set {_bp} to uncolored loop-value
+						replace "Breaking Power " in {_bp} with ""
+						set {_bp} to {_bp} parsed as number
+						set int tag "breakingpower" of custom nbt of {_i} to {_bp}
+
+				else if loop-value contains "&7Magic Find:":
+						set {_magicfind} to uncolored loop-value
+						replace "Magic Find: " and "🛡" and "+" in {_magicfind} with ""
+						set {_magicfind} to {_magicfind} parsed as number
+						set int tag "magicfind" of custom nbt of {_i} to {_magicfind}
+				else if loop-value contains "&7Health:":
+						set {_health} to uncolored loop-value
+						replace "Health: " and "🛡" and "+" in {_health} with ""
+						set {_health} to {_health} parsed as number
+						set int tag "health" of custom nbt of {_i} to {_health}
+				else if loop-value contains "&7Intelligence:":
+						set {_intel} to uncolored loop-value
+						replace "Intelligence: " and "🛡" and "+" in {_intel} with ""
+						set {_intel} to {_intel} parsed as number
+						set int tag "intel" of custom nbt of {_i} to {_intel}
+				else if loop-value contains "&7Speed:":
+						set {_speed} to uncolored loop-value
+						replace "Speed: " and "🛡" and "+" in {_speed} with ""
+						set {_speed} to {_speed} parsed as number
+						set int tag "speed" of custom nbt of {_i} to {_speed}
+				else if loop-value contains "&7Mining Speed:":
+						set {_miningspeed} to uncolored loop-value
+						replace "Mining Speed: " and "🛡" and "+" in {_miningspeed} with ""
+						set {_miningspeed} to {_miningspeed} parsed as number
+						set int tag "miningspeed" of custom nbt of {_i} to {_miningspeed}
+		return {_i}
+
+on armor change:
+	reloadarmor(player)
+
+on join:
+	reloadarmor(player)
+
+function reloadarmor(p:player):
+	
+
+		set {_var::1::1} to int tag "speed" of custom nbt of helmet of {_p}
+		set {_var::1::2} to int tag "speed" of custom nbt of chestplate of {_p}
+		set {_var::1::3} to int tag "speed" of custom nbt of leggings of {_p}
+		set {_var::1::4} to int tag "speed" of custom nbt of boots of {_p}
+		set {_var::1::5} to int tag "speed" of custom nbt of tool of {_p}  
+		set {-speed::%uuid of {_p}%} to {_speed} ? 0.3 + {_var::1::1} + {_var::1::2} + {_var::1::3} + {_var::1::4} + {_var::1::5}
+		#set {_p}'s walk speed to {-speed::%uuid of {_p}%}
+
+		set {_var::1::1} to int tag "intel" of custom nbt of helmet of {_p}
+		set {_var::1::2} to int tag "intel" of custom nbt of chestplate of {_p}
+		set {_var::1::3} to int tag "intel" of custom nbt of leggings of {_p}
+		set {_var::1::4} to int tag "intel" of custom nbt of boots of {_p}
+		set {_var::1::5} to int tag "intel" of custom nbt of tool of {_p}          
+        
+		set {-manaboost::%uuid of {_p}%} to {_intel} ? 0 + {_var::1::1} + {_var::1::2} + {_var::1::3} +{_var::1::4} +{_var::1::5}
+		set {-ManaMax::%uuid of {_p}%} to 250 + {-manaboost::%uuid of {_p}%}
+
+		set {_var::1::1} to int tag "health" of custom nbt of helmet of {_p}
+		set {_var::1::2} to int tag "health" of custom nbt of chestplate of {_p}
+		set {_var::1::3} to int tag "health" of custom nbt of leggings of {_p}
+		set {_var::1::4} to int tag "health" of custom nbt of boots of {_p}
+		#set {_var::1::6} to int tag "health" of custom nbt of tool of {_p}        
+		set {_var::1::5} to 100
+		set {-health::%uuid of {_p}%} to {_health} ? 0 + {_var::1::1} + {_var::1::2} + {_var::1::3} +{_var::1::4}+ {_var::1::5}#+ {_var::1::6}
+		set max health of {_p} to {-health::%{_p}'s uuid%}
+        
+		set {_var::1::1} to int tag "defense" of custom nbt of helmet of {_p}
+		set {_var::1::2} to int tag "defense" of custom nbt of chestplate of {_p}
+		set {_var::1::3} to int tag "defense" of custom nbt of leggings of {_p}
+		set {_var::1::4} to int tag "defense" of custom nbt of boots of {_p}
+		#set {_var::1::5} to int tag "defense" of custom nbt of tool of {_p}        
+		set {-defense::%uuid of {_p}%} to {_def} ? 0 + {_var::1::1} + {_var::1::2} + {_var::1::3} +{_var::1::4}# + {_var::1::5}
+
+		set {_var::1::1} to int tag "damage" of custom nbt of helmet of {_p}
+		set {_var::1::2} to int tag "damage" of custom nbt of chestplate of {_p}
+		set {_var::1::3} to int tag "damage" of custom nbt of leggings of {_p}
+		set {_var::1::4} to int tag "damage" of custom nbt of boots of {_p}
+		set {_var::1::5} to int tag "damage" of custom nbt of tool of {_p}       
+		set {-damage::%uuid of {_p}%} to {_totaldamage} ? 0 + {_var::1::1} + {_var::1::2} + {_var::1::3} +{_var::1::4} + {_var::1::5}
+
+		set {_var::1::1} to int tag "strength" of custom nbt of helmet of {_p}
+		set {_var::1::2} to int tag "strength" of custom nbt of chestplate of {_p}
+		set {_var::1::3} to int tag "strength" of custom nbt of leggings of {_p}
+		set {_var::1::4} to int tag "strength" of custom nbt of boots of {_p}
+		set {_var::1::5} to int tag "strength" of custom nbt of tool of {_p}
+       
+		set {-strength::%uuid of {_p}%} to {_totalstrength} ? 0 + {_var::1::1} + {_var::1::2} + {_var::1::3} + {_var::1::4} + {_var::1::5} 
+		
+		set {_var::1::1} to int tag "critdamage" of custom nbt of helmet of {_p}
+		set {_var::1::2} to int tag "critdamage" of custom nbt of chestplate of {_p}
+		set {_var::1::3} to int tag "critdamage" of custom nbt of leggings of {_p}
+		set {_var::1::4} to int tag "critdamage" of custom nbt of boots of {_p}
+		set {_var::1::5} to int tag "critdamage" of custom nbt of tool of {_p}        
+		set {-critdamage::%uuid of {_p}%} to {_strength} ? 0 + {_var::1::1} + {_var::1::2} + {_var::1::3} + {_var::1::4} + {_var::1::5} 
+
+        
+		set {_var::1::1} to int tag "magicfind" of custom nbt of helmet of {_p}
+		set {_var::1::2} to int tag "magicfind" of custom nbt of chestplate of {_p}
+		set {_var::1::3} to int tag "magicfind" of custom nbt of leggings of {_p}
+		set {_var::1::4} to int tag "magicfind" of custom nbt of boots of {_p}
+		set {_var::1::5} to int tag "magicfind" of custom nbt of tool of {_p}
+		set {-magicfind::%uuid of {_p}%} to {_magicfind} ? 0 + {_var::1::1} + {_var::1::2} + {_var::1::3} +{_var::1::4}+ {_var::1::5} 
+
+		set {_var::1::1} to int tag "miningspeed" of custom nbt of helmet of {_p}
+		set {_var::1::2} to int tag "miningspeed" of custom nbt of chestplate of {_p}
+		set {_var::1::3} to int tag "miningspeed" of custom nbt of leggings of {_p}
+		set {_var::1::4} to int tag "miningspeed" of custom nbt of boots of {_p}
+		set {_var::1::5} to int tag "miningspeed" of custom nbt of tool of {_p}
+		set {-miningspeed::%uuid of {_p}%} to {_miningspeed} ? 0 + {_var::1::1} + {_var::1::2} + {_var::1::3} +{_var::1::4}+ {_var::1::5} 
+        
+command /reloaditem:
+	permission: op
+	trigger:
+		set held item of player to reloaditem(held item of player)
+		reloadarmor(player)
+
+    

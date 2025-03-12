@@ -1,0 +1,40 @@
+command /reloadrecipes:
+  permission: op
+  trigger:
+    remove all minecraft recipes
+    register new shaped recipe for getServerItem("rusty-pickaxe") using getServerItem("compressed_stone"), getServerItem("compressed_stone"), getServerItem("compressed_stone"), air, getServerItem("stick"), air, air, getServerItem("stick"), air with id "rusty" in group "rusty_pickaxe"
+
+    register new shaped recipe for getServerItem("steel-pickaxe") using getServerItem("compressed_iron"), getServerItem("compressed_iron"), getServerItem("compressed_iron"), air, getServerItem("stick"), air, air, getServerItem("stick"), air with id "steel" in group "steel_pickaxe"    
+
+    register new shaped recipe for getServerItem("steel-helmet") using getServerItem("compressed_iron"), getServerItem("compressed_iron"), getServerItem("compressed_iron"), getServerItem("compressed_iron"), air, getServerItem("compressed_iron"), air, air, air with id "steelhelmet" in group "steelhelmet"
+
+    register new shaped recipe for getServerItem("steel-chestplate") using getServerItem("compressed_iron"), air, getServerItem("compressed_iron"), getServerItem("compressed_iron"), getServerItem("compressed_iron"), getServerItem("compressed_iron"), getServerItem("compressed_iron"), getServerItem("compressed_iron"), getServerItem("compressed_iron") with id "steelchestplate" in group "steelchestplate"
+
+    register new shaped recipe for getServerItem("steel-leggings") using getServerItem("compressed_iron"), getServerItem("compressed_iron"), getServerItem("compressed_iron"), getServerItem("compressed_iron"), air, getServerItem("compressed_iron"), getServerItem("compressed_iron"), air, getServerItem("compressed_iron") with id "steelleggings" in group "steelleggings"
+
+    register new shaped recipe for getServerItem("steel-boots") using air, air, air, getServerItem("compressed_iron"), air, getServerItem("compressed_iron"), getServerItem("compressed_iron"), air, getServerItem("compressed_iron") with id "steelboots" in group "steelboots"
+
+    register new shaped recipe for getServerItem("rusty-wand") using getServerItem("compressed_stone"), air, getServerItem("compressed_stone"), air, getServerItem("stick"), air, air, getServerItem("stick"), air with id "rustywand" in group "rustywand"
+
+    register new shaped recipe for getServerItem("steel-scepter") using getServerItem("compressed_iron"), air, getServerItem("compressed_iron"), air, getServerItem("stick"), air, air, getServerItem("stick"), air with id "steelscepter" in group "steelscepter"
+
+    register new shaped recipe for getServerItem("healing-wand") using getServerItem("putrid-flesh"), air, getServerItem("putrid-flesh"), getServerItem("putrid-flesh"), getServerItem("zombie-essence"), getServerItem("putrid-flesh"), air, getServerItem("stick"), air with id "steelscepter" in group "steelscepter"
+
+
+
+
+
+
+# register new shaped recipe for getServerItem("_") using air, air, air, air, air, air, air, air, air with id "_" in group "_"
+
+
+
+
+on load:
+    remove all minecraft recipes
+    register new shaped recipe for getServerItem("rusty-pickaxe") using getServerItem("compressed_stone"), getServerItem("compressed_stone"), getServerItem("compressed_stone"), air, getServerItem("stick"), air, air, getServerItem("stick"), air with id "rusty" in group "rusty_pickaxe"
+    register new shaped recipe for getServerItem("steel-pickaxe") using getServerItem("compressed_iron"), getServerItem("compressed_iron"), getServerItem("compressed_iron"), air, getServerItem("stick"), air, air, getServerItem("stick"), air with id "steel" in group "steel_pickaxe"    
+    register new shaped recipe for getServerItem("steel-helmet") using getServerItem("compressed_iron"), getServerItem("compressed_iron"), getServerItem("compressed_iron"), getServerItem("compressed_iron"), air, getServerItem("compressed_iron"), air, air, air with id "steelhelmet" in group "steelhelmet"
+    register new shaped recipe for getServerItem("steel-chestplate") using getServerItem("compressed_iron"), air, getServerItem("compressed_iron"), getServerItem("compressed_iron"), getServerItem("compressed_iron"), getServerItem("compressed_iron"), getServerItem("compressed_iron"), getServerItem("compressed_iron"), getServerItem("compressed_iron") with id "steelchestplate" in group "steelchestplate"
+    register new shaped recipe for getServerItem("steel-leggings") using getServerItem("compressed_iron"), getServerItem("compressed_iron"), getServerItem("compressed_iron"), getServerItem("compressed_iron"), air, getServerItem("compressed_iron"), getServerItem("compressed_iron"), air, getServerItem("compressed_iron") with id "steelleggings" in group "steelleggings"
+    register new shaped recipe for getServerItem("steel-boots") using air, air, air, getServerItem("compressed_iron"), air, getServerItem("compressed_iron"), getServerItem("compressed_iron"), air, getServerItem("compressed_iron") with id "steelboots" in group "steelboots"

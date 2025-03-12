@@ -1,0 +1,186 @@
+on right click on blast furnace:
+  block below event-block is magma block
+  cancel event
+  openForge(player)
+
+function openForge(p: player):
+  set {_g} to chest inventory with 6 rows named "&8Forge"
+  set slots {-slots::*} of {_g} to gray stained glass pane named " "
+  set slots {-outside::*} of {_g} to black stained glass pane named " "
+
+  set slot 21 of {_g} to raw iron named "&fIron" with lore "&7Left click to input." and "&7Right click to extract raw iron." and "&7Shift right click to extract smelted iron." and "" and "&7You have &f%{rawiron::%{_p}'s uuid%} ? 0% Raw Iron&7." and "&7You have &f%{smeltediron::%{_p}'s uuid%} ? 0% Iron Ingot(s)&7."
+  set slot 23 of {_g} to raw gold named "&6Gold" with lore "&7Left click to input." and "&7Right click to extract raw gold." and "&7Shift right click to extract smelted gold." and "" and "&7You have &6%{rawgold::%{_p}'s uuid%} ? 0% Raw Gold&7." and "&7You have &6%{smeltedgold::%{_p}'s uuid%} ? 0% Gold Ingot(s)&7."
+  set slot 30 of {_g} to heavy weighted pressure plate named "&aSmelt Iron" with lore "&7Left click to smelt all iron."
+  set slot 32 of {_g} to light weighted pressure plate named "&aSmelt Gold" with lore "&7Left click to smelt all gold."
+
+  set slot 22 of {_g} to coal named "&7Fuel" with lore "&7Left click to insert all fuel." and "" and "&7You have &e%{fuelunits::%{_p}'s uuid%} ? 0% Fuel Units&7."
+  open {_g} for {_p}
+
+
+on load:
+  set {-outside::*} to 0,1,2,3,4,5,6,7,8,9,17,18,26,27,35,36,44,45,46,47,48,49,50,51,52,53,54
+
+  set {_i} to 0
+  loop 54 times:
+    add {_i} to {-slots::*}
+    add 1 to {_i}
+
+aliases:
+  golditem = raw gold
+  ironitem = raw iron
+
+on inventory click:
+  if name of event-inventory contains "&8Forge":
+    cancel event
+    if click type is lmb:
+      if event-slot is 21:
+        if player has raw iron:
+          loop player's inventory:
+            if loop-value is ironitem:
+              add amount of loop-value to {rawiron::%player's uuid%}
+              remove loop-value from the player
+          play sound "block.chest.open" at volume 10 and pitch 0 for the player
+          openForge(player)
+        else:
+          play sound "entity.villager.no" for the player
+  
+      else if event-slot is 23:
+        if player has raw gold:
+          loop player's inventory:
+            if loop-value is golditem:
+              add amount of loop-value to {rawgold::%player's uuid%}
+              remove loop-value from the player
+          play sound "block.chest.open" at volume 10 and pitch 0 for the player
+          openForge(player)
+        else:
+          play sound "entity.villager.no" for the player
+
+      else if event-slot is 22:
+        loop player's inventory:
+          if loop-value is coal:
+            add (amount of loop-value) * 2 to {fuelunits::%player's uuid%}
+            remove loop-value from the player
+            set {_sound} to true
+        if {_sound} is true:
+          play sound "block.chest.open" at volume 10 and pitch 0 for the player
+          openForge(player)
+
+      else if event-slot is 30:
+        if {fuelunits::%player's uuid%} >= 4:
+          if {rawiron::%player's uuid%} >= 1:
+            while {fuelunits::%player's uuid%} >= 4:
+              remove 4 from {fuelunits::%player's uuid%}
+              remove 1 from {rawiron::%player's uuid%}
+              add 1 to {smeltediron::%player's uuid%}
+              if {rawiron::%player's uuid%} = 0:
+                play sound "entity.iron_golem.repair" at volume 10 and pitch 0 for the player
+                play sound "block.fire.extinguish" at volume 10 and pitch 0 for the player
+                openForge(player)
+                stop
+            play sound "entity.iron_golem.repair" at volume 10 and pitch 0 for the player
+            play sound "block.fire.extinguish" at volume 10 and pitch 0 for the player
+            openForge(player)
+          else:
+            play sound "entity.villager.no" for the player
+        else:
+          play sound "item.flintandsteel.use" for the player
+
+
+
+      else if event-slot is 32:
+        if {fuelunits::%player's uuid%} >= 6:
+          if {rawgold::%player's uuid%} >= 1:
+            while {fuelunits::%player's uuid%} >= 6:
+              remove 6 from {fuelunits::%player's uuid%}
+              remove 1 from {rawgold::%player's uuid%}
+              add 1 to {smeltedgold::%player's uuid%}
+              if {rawgold::%player's uuid%} = 0:
+                play sound "entity.iron_golem.repair" at volume 10 and pitch 0 for the player
+                play sound "block.fire.extinguish" at volume 10 and pitch 0 for the player
+                openForge(player)
+                stop
+            play sound "entity.iron_golem.repair" at volume 10 and pitch 0 for the player
+            play sound "block.fire.extinguish" at volume 10 and pitch 0 for the player
+            openForge(player)
+          else:
+            play sound "entity.villager.no" for the player
+        else:
+          play sound "item.flintandsteel.use" for the player
+
+
+
+
+    else if click type is rmb:
+      if event-slot is 21:
+        if {rawiron::%player's uuid%} >= 0:
+          if {rawiron::%player's uuid%} > 64:
+            remove 64 from {rawiron::%player's uuid%}
+            give 64 of raw iron named "&fRaw Iron" with lore "&f&lCOMMON" and "" and "&66 Coins" to the player
+            play sound "block.chest.close" for the player
+          else:
+            give {rawiron::%player's uuid%} of raw iron named "&fRaw Iron" with lore "&f&lCOMMON" and "" and "&66 Coins" to the player
+            set {rawiron::%player's uuid%} to 0
+            play sound "block.chest.close" for the player
+          openForge(player)
+        else:
+          play sound "entity.villager.no" for the player
+
+      if event-slot is 23:
+        if {rawgold::%player's uuid%} >= 0:
+          if {rawgold::%player's uuid%} > 64:
+            remove 64 from {rawgold::%player's uuid%}
+            give 64 of raw gold named "&fRaw Gold" with lore "&f&lCOMMON" and "" and "&68 Coins" to the player
+            play sound "block.chest.close" for the player
+          else:
+            give {rawgold::%player's uuid%} of raw gold named "&fRaw Gold" with lore "&f&lCOMMON" and "" and "&68 Coins" to the player
+            set {rawgold::%player's uuid%} to 0
+            play sound "block.chest.close" for the player
+          openForge(player)
+        else:
+          play sound "entity.villager.no" for the player
+
+
+
+
+    else if click type is shift+rmb:
+      if event-slot is 21:
+        if {smeltediron::%player's uuid%} >= 0:
+          if {smeltediron::%player's uuid%} > 64:
+            remove 64 from {smeltediron::%player's uuid%}
+            give 64 of iron ingot named "&fIron Ingot" with lore "&f&lCOMMON" and "" and "&614 Coins" to the player
+            play sound "block.chest.close" for the player
+          else:
+            give {smeltediron::%player's uuid%} of iron ingot named "&fIron Ingot" with lore "&f&lCOMMON" and "" and "&614 Coins" to the player
+            set {smeltediron::%player's uuid%} to 0
+            play sound "block.chest.close" for the player
+          openForge(player)
+        else:
+          play sound "entity.villager.no" for the player
+
+      if event-slot is 23:
+        if {smeltedgold::%player's uuid%} >= 0:
+          if {smeltedgold::%player's uuid%} > 64:
+            remove 64 from {smeltedgold::%player's uuid%}
+            give 64 of gold ingot named "&fGold Ingot" with lore "&f&lCOMMON" and "" and "&618 Coins" to the player
+            play sound "block.chest.close" for the player
+          else:
+            give {smeltedgold::%player's uuid%} of gold ingot named "&fGold Ingot" with lore "&f&lCOMMON" and "" and "&618 Coins" to the player
+            set {smeltedgold::%player's uuid%} to 0
+            play sound "block.chest.close" for the player
+          openForge(player)
+        else:
+          play sound "entity.villager.no" for the player
+
+  if {-debugslot::%player's uuid%} is true:
+    cancel event
+    send "%index of event-slot%"
+
+command /debugslot:
+  permission: op
+  trigger:
+    if {-debugslot::%player's uuid%} is not true:
+      set {-debugslot::%player's uuid%} to true
+      send "&aDebug slots mode turned on!"
+    else:
+      set {-debugslot::%player's uuid%} to false
+      send "&aDebug slots mode turned off."

@@ -1,0 +1,91 @@
+on block break:
+  player's gamemode is survival
+  clear drops
+  cancel event
+
+  set {_v} to random number from 15 to 20
+  set {_v} to {_v}/10
+
+  if event-block is stone:
+    play sound "entity.experience_orb.pickup" at volume 10 and pitch {_v} for the player
+    give cobblestone named "&fCobblestone" with lore "&f&lCOMMON" and "" and "&61 Coin" to the player
+    set event-block to bedrock
+    add 1 to {miningxp::%player's uuid%}
+    miningXP(player, 1)
+    wait 5 seconds
+    set event-block to stone
+
+  if event-block is cobblestone:
+    play sound "entity.experience_orb.pickup" at volume 10 and pitch {_v} for the player
+    give cobblestone named "&fCobblestone" with lore "&f&lCOMMON" and "" and "&61 Coin" to the player
+    set event-block to bedrock
+    add 1 to {miningxp::%player's uuid%}
+    miningXP(player, 1)
+    wait 5 seconds
+    set event-block to cobblestone
+
+  if event-block is andesite:
+    play sound "entity.experience_orb.pickup" at volume 10 and pitch {_v} for the player
+    give cobblestone named "&fCobblestone" with lore "&f&lCOMMON" and "" and "&61 Coin" to the player
+    set event-block to bedrock
+    add 1 to {miningxp::%player's uuid%}
+    miningXP(player, 1)
+    wait 5 seconds
+    set event-block to andesite
+
+  if event-block is coal ore:
+    if int tag "breakingpower" of custom nbt compound of player's tool >= 2:
+      play sound "entity.experience_orb.pickup" at volume 10 and pitch {_v} for the player
+      give miningFortune(player) of coal named "&fCoal" with lore "&e4 Fuel Units" and "" and "&f&lCOMMON" and "" and "&63 Coins" to the player
+      set event-block to bedrock
+      add 3 to {miningxp::%player's uuid%}
+      miningXP(player, 3)
+      wait 5 seconds
+      set event-block to coal ore
+    else:
+      send "&cYour breaking power is too low!" to the player
+
+  if event-block is iron ore:
+    if int tag "breakingpower" of custom nbt compound of player's tool >= 2:
+      play sound "entity.experience_orb.pickup" at volume 10 and pitch {_v} for the player
+      give miningFortune(player) of raw iron named "&fRaw Iron" with lore "&f&lCOMMON" and "" and "&66 Coins" to the player
+      set event-block to bedrock
+      add 6 to {miningxp::%player's uuid%}
+      miningXP(player, 6)
+      wait 5 seconds
+      set event-block to iron ore
+    else:
+      send "&cYour breaking power is too low!" to the player
+
+  if event-block is gold ore:
+    if int tag "breakingpower" of custom nbt compound of player's tool >= 3:
+      play sound "entity.experience_orb.pickup" at volume 10 and pitch {_v} for the player
+      give miningFortune(player) of raw gold named "&fRaw Gold" with lore "&f&lCOMMON" and "" and "&68 Coins" to the player
+      set event-block to bedrock
+      add 8 to {miningxp::%player's uuid%}
+      miningXP(player, 8)
+      wait 5 seconds
+      set event-block to gold ore
+    else:
+      send "&cYour breaking power is too low!" to the player
+
+
+function miningFortune(p: player) :: integer:
+
+  set {_m} to {miningfortune::%{_p}'s uuid%} ? 0
+
+  add ({mininglevel::%{_p}'s uuid%} * 2) to {_m}
+
+  set {_mf} to floor({_m}/100)
+  if {_m} > 100:
+    chance of ({_m} - ({_mf} * 100))%:
+      add 1 to {_mf}
+  else:
+    chance of {_m}%:
+      add 1 to {_mf}
+
+  return {_f} + {_mf} + 1
+
+function miningXP(p: player, xp: integer):
+  send action bar "&3+%{_xp}% Mining XP &8[&7%{miningxp::%{_p}'s uuid%}%/%{miningxpneeded::%{_p}'s uuid%}%&8]" to {_p}
+  set {-damage::%{_p}'s uuid%} to true

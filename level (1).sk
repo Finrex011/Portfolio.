@@ -1,0 +1,203 @@
+on death:
+  attacker is a player
+  victim is a mob
+  
+  wait 1 tick
+
+  # xp gain
+  set {_m} to metadata value "xp" of victim parsed as an integer
+  if {combatxp::%attacker's uuid%} is not set:
+    set {combatxp::%attacker's uuid%} to 0
+  add {_m} to {combatxp::%attacker's uuid%}
+  if {combatxpneeded::%attacker's uuid%} is not set:
+    set {combatxpneeded::%attacker's uuid%} to 100
+  if {combatxp::%attacker's uuid%} >= {combatxpneeded::%attacker's uuid%}:
+    levelUpCombat(attacker)
+
+function levelUpCombat(p: player):
+  while {combatxp::%{_p}'s uuid%} >= {combatxpneeded::%{_p}'s uuid%}:
+    set {combatxp::%{_p}'s uuid%} to {combatxp::%{_p}'s uuid%} - {combatxpneeded::%{_p}'s uuid%}
+    if {combatlevel::%{_p}'s uuid%} ? 0 < 30:
+      set {combatxpneeded::%{_p}'s uuid%} to {combatxpneeded::%{_p}'s uuid%} * 1.175
+    else if {combatlevel::%{_p}'s uuid%} < 50:
+      set {combatxpneeded::%{_p}'s uuid%} to {combatxpneeded::%{_p}'s uuid%} * 1.095
+    else if {combatlevel::%{_p}'s uuid%} < 100:
+      set {combatxpneeded::%{_p}'s uuid%} to {combatxpneeded::%{_p}'s uuid%} * 1.05
+    else if {combatlevel::%{_p}'s uuid%} < 250:
+      set {combatxpneeded::%{_p}'s uuid%} to {combatxpneeded::%{_p}'s uuid%} * 1.015
+    else if {combatlevel::%{_p}'s uuid%} < 500:
+      set {combatxpneeded::%{_p}'s uuid%} to {combatxpneeded::%{_p}'s uuid%} * 1.005
+    else:
+      set {combatxpneeded::%{_p}'s uuid%} to {combatxpneeded::%{_p}'s uuid%} * 1.001
+
+  # rounding
+    set {combatxpneeded::%{_p}'s uuid%} to round {combatxpneeded::%{_p}'s uuid%} / 10
+    set {combatxpneeded::%{_p}'s uuid%} to {combatxpneeded::%{_p}'s uuid%} * 10
+
+    send "&3&l---------------------" to {_p}
+    send " " to {_p}
+    send "&b&lLEVEL UP &7Combat &3%{combatlevel::%{_p}'s uuid%} ? 0% &8➡ &3%{combatlevel::%{_p}'s uuid%} + 1%" to {_p}
+    send "  " to {_p}
+    send "&7Attack Damage: &c🗡 +%{combatlevel::%{_p}'s uuid%}%%% &8➡ &c🗡 +%{combatlevel::%{_p}'s uuid%} + 1%%%" to {_p}
+    send "&7Global XP: &3+25 (%{globalxp::%{_p}'s uuid%}+25%/100)" to {_p}
+    send "   " to {_p}
+    send "&3&l--------------------- " to {_p}
+
+    add 1 to {combatlevel::%{_p}'s uuid%}
+
+  set {_pitch} to 2
+  loop 10 times:
+    play sound "block.note_block.pling" at volume 10 and pitch {_pitch} for {_p}
+    remove 0.1 from {_pitch}
+    wait 1 tick
+  loop 10 times:
+    play sound "block.note_block.pling" at volume 10 and pitch {_pitch} for {_p}
+    add 0.1 to {_pitch}
+    wait 1 tick
+  loop 3 times:
+    play sound "block.note_block.pling" at volume 10 and pitch 2 for {_p}
+    play sound "block.note_block.pling" at volume 10 and pitch 1.5 for {_p}
+    play sound "block.note_block.pling" at volume 10 and pitch 1 for {_p}
+    #play sound "block.note_block.pling" at volume 10 and pitch 1 for {_p}
+    wait 0.2 seconds
+
+  wait 1 seconds
+
+  add 25 to {globalxp::%{_p}'s uuid%}
+  globalLevelUp({_p})
+
+command /reset <player>:
+  permission: op
+  trigger:
+    set {combatxp::%arg-1's uuid%} to 0
+    set {combatxpneeded::%arg-1's uuid%} to 100
+    set {combatlevel::%arg-1's uuid%} to 0
+    set {miningxp::%arg-1's uuid%} to 0
+    set {miningxpneeded::%arg-1's uuid%} to 100
+    set {mininglevel::%arg-1's uuid%} to 0
+    set {globalxp::%arg-1's uuid%} to 0
+    set {globalxpneeded::%arg-1's uuid%} to 100
+    set {globallevel::%arg-1's uuid%} to 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+on block break:
+  wait 1 tick
+  if {miningxp::%player's uuid%} >= {miningxpneeded::%player's uuid%} ? 100:
+    levelUpMining(player)
+
+function levelUpMining(p: player):
+  while {miningxp::%{_p}'s uuid%} >= {miningxpneeded::%{_p}'s uuid%}:
+    set {miningxp::%{_p}'s uuid%} to {miningxp::%{_p}'s uuid%} - {miningxpneeded::%{_p}'s uuid%}
+    if {mininglevel::%{_p}'s uuid%} ? 0 < 30:
+      set {miningxpneeded::%{_p}'s uuid%} to {miningxpneeded::%{_p}'s uuid%} * 1.175
+    else if {mininglevel::%{_p}'s uuid%} < 50:
+      set {miningxpneeded::%{_p}'s uuid%} to {miningxpneeded::%{_p}'s uuid%} * 1.095
+    else if {mininglevel::%{_p}'s uuid%} < 100:
+      set {miningxpneeded::%{_p}'s uuid%} to {miningxpneeded::%{_p}'s uuid%} * 1.05
+    else if {mininglevel::%{_p}'s uuid%} < 250:
+      set {miningxpneeded::%{_p}'s uuid%} to {miningxpneeded::%{_p}'s uuid%} * 1.015
+    else if {mininglevel::%{_p}'s uuid%} < 500:
+      set {miningxpneeded::%{_p}'s uuid%} to {miningxpneeded::%{_p}'s uuid%} * 1.005
+    else:
+      set {miningxpneeded::%{_p}'s uuid%} to {miningxpneeded::%{_p}'s uuid%} * 1.001
+
+  # rounding
+    set {miningxpneeded::%{_p}'s uuid%} to round {miningxpneeded::%{_p}'s uuid%} / 10
+    set {miningxpneeded::%{_p}'s uuid%} to {miningxpneeded::%{_p}'s uuid%} * 10
+
+    send "&3&l---------------------" to {_p}
+    send " " to {_p}
+    send "&b&lLEVEL UP &7Mining &3%{mininglevel::%{_p}'s uuid%} ? 0% &8➡ &3%{mininglevel::%{_p}'s uuid%} + 1%" to {_p}
+    send "  " to {_p}
+    send "&7Mining Fortune: &6⛏ +%({mininglevel::%{_p}'s uuid%} * 2)% &8➡ &6⛏ +%({mininglevel::%{_p}'s uuid%} * 2)+2%" to {_p}
+    send "&7Global XP: &3+25 (%{globalxp::%{_p}'s uuid%}+25%/100)" to {_p}
+    send "   " to {_p}
+    send "&3&l--------------------- " to {_p}
+
+    add 1 to {mininglevel::%{_p}'s uuid%}
+
+
+  set {_pitch} to 2
+  loop 10 times:
+    play sound "block.note_block.pling" at volume 10 and pitch {_pitch} for {_p}
+    remove 0.1 from {_pitch}
+    wait 1 tick
+  loop 10 times:
+    play sound "block.note_block.pling" at volume 10 and pitch {_pitch} for {_p}
+    add 0.1 to {_pitch}
+    wait 1 tick
+  loop 3 times:
+    play sound "block.note_block.pling" at volume 10 and pitch 2 for {_p}
+    play sound "block.note_block.pling" at volume 10 and pitch 1.5 for {_p}
+    play sound "block.note_block.pling" at volume 10 and pitch 1 for {_p}
+    #play sound "block.note_block.pling" at volume 10 and pitch 1 for {_p}
+    wait 0.2 seconds
+
+  wait 1 seconds
+
+  add 25 to {globalxp::%{_p}'s uuid%}
+  globalLevelUp({_p})
+
+
+function globalLevelUp(p: player):
+  if {globalxp::%{_p}'s uuid%} ? 0 >= {globalxpneeded::%{_p}'s uuid%} ? 100:
+    while {globalxp::%{_p}'s uuid%} >= {globalxpneeded::%{_p}'s uuid%}:
+      add 1 to {globallevel::%{_p}'s uuid%}
+      remove 100 from {globalxp::%{_p}'s uuid%}
+      wait 1 tick
+      send "&3&l---------------------" to {_p}
+      send " " to {_p}
+      send "&b&lLEVEL UP &7Global &6%{globallevel::%{_p}'s uuid%} - 1% &8➡ &6%{globallevel::%{_p}'s uuid%}%" to {_p}
+      send "  " to {_p}
+      send "&7Max Health: &c❤ +%({globallevel::%{_p}'s uuid%} * 20) + 80% &8➡ &c❤ +%({globallevel::%{_p}'s uuid%} * 20) + 100%" to {_p}
+      send "&7Intellect: &b✏ +%(({globallevel::%{_p}'s uuid%}-1) * 50) + 100% &8➡ &b✏ +%({globallevel::%{_p}'s uuid%} * 50) + 100%" to {_p}
+      send "   " to {_p}
+      send "&3&l--------------------- " to {_p}
+
+      add 20 to {_p}'s max health
+
+      set {_pitch} to 1
+      play sound "ui.toast.challenge_complete" for {_p}
+      loop 10 times:
+        play sound "block.note_block.pling" at volume 10 and pitch {_pitch} for {_p}
+        remove 0.1 from {_pitch}
+        wait 1 tick
+      loop 10 times:
+        play sound "block.note_block.pling" at volume 10 and pitch {_pitch} for {_p}
+        add 0.2 to {_pitch}
+        wait 1 tick
+      loop 10 times:
+        play sound "block.note_block.pling" at volume 10 and pitch {_pitch} for {_p}
+        remove 0.1 from {_pitch}
+        wait 1 tick
+      loop 10 times:
+        play sound "block.note_block.pling" at volume 10 and pitch {_pitch} for {_p}
+        add 0.2 to {_pitch}
+        wait 1 tick
+      loop 3 times:
+        play sound "block.note_block.pling" at volume 10 and pitch 1 for {_p}
+        play sound "block.note_block.pling" at volume 10 and pitch 1.5 for {_p}
+        play sound "block.note_block.pling" at volume 10 and pitch 2 for {_p}
+        wait 0.2 seconds
+
+on first join:
+  set {combatxp::%player's uuid%} to 0
+  set {combatxpneeded::%player's uuid%} to 100
+  set {combatlevel::%player's uuid%} to 0
+  set {miningxp::%player's uuid%} to 0
+  set {miningxpneeded::%player's uuid%} to 100
+  set {mininglevel::%player's uuid%} to 0
+  set {globalxp::%player's uuid%} to 0
+  set {globalxpneeded::%player's uuid%} to 100
+  set {globallevel::%player's uuid%} to 0
