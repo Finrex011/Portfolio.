@@ -1,0 +1,37 @@
+zombie:
+    displayname: "&7Zombie"
+    name: zombie
+    level: 5
+    basemob: adult zombie
+    health: 50
+    xp: 10
+    chestplate: zombiechestplate
+    tool: zombiesword
+
+zombie-brute:
+    displayname: "&7Zombie Brute"
+    name: zombie-brute
+    level: 10
+    basemob: adult zombie
+    health: 150
+    xp: 50
+    chestplate: brutechestplate
+    leggings: bruteleggings
+    boots: bruteboots
+    tool: brutesword
+
+xp-pinata:
+    displayname: "&7Pinata"
+    name: xp-pinata
+    level: -1
+    basemob: llama
+    health: 1
+    xp: 10000
+
+test-mob:
+    displayname: "&7Test Mob"
+    name: test-mob
+    level: 0
+    basemob: zombie
+    health: 10000
+    xp: 10000

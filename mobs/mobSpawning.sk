@@ -1,0 +1,76 @@
+on load:
+    load yml "plugins/Skript/scripts/mobSpawning/mobs.yml" as "mobyml"
+    
+function spawnMob(l: location, n: text) :: entity:
+    set {_spawntype} to yml value "%{_n}%.basemob" from "mobyml" 
+    spawn {_spawntype} parsed as entitytype at {_l}:
+        set max health of event-entity to yml value "%{_n}%.health" from "mobyml"
+        set health of event-entity to yml value "%{_n}%.health" from "mobyml"
+        set {_name} to yml value "%{_n}%.displayname" from "mobyml"
+        set {_lvl} to yml value "%{_n}%.level" from "mobyml"
+        set display name of event-entity to "&8[&7%{_lvl}%&8] %{_name}% &a%health of event-entity%&7/&a%max health of event-entity%&c❤"
+
+        set {_e} to event-entity
+
+        set {_c} to yml value "%{_n}%.helmet" from "mobyml"
+        set {_e}'s helmet to getServerItem("%{_c}%")
+
+        set {_c} to yml value "%{_n}%.chestplate" from "mobyml"
+        set {_e}'s chestplate to getServerItem("%{_c}%")
+
+        set {_c} to yml value "%{_n}%.leggings" from "mobyml"
+        set {_e}'s leggings to getServerItem("%{_c}%")
+
+        set {_c} to yml value "%{_n}%.boots" from "mobyml"
+        set {_e}'s boots to getServerItem("%{_c}%")
+
+        set {_c} to yml value "%{_n}%.tool" from "mobyml"
+        set {_e}'s tool to getServerItem("%{_c}%")
+
+        set metadata value "name" of {_e} to yml value "%{_n}%.name" from "mobyml"
+        set metadata value "level" of {_e} to yml value "%{_n}%.level" from "mobyml"
+        set metadata value "displayname" of {_e} to yml value "%{_n}%.displayname" from "mobyml"
+
+    return {_e}
+
+on load:
+  set {mobtypes::*} to "zombie","zombie-brute"
+  loop all mobs:
+    set {_n} to metadata value "name" of loop-entity
+    if {mobtypes::*} contains {_n}:
+      delete loop-entity
+  loop {mobtypes::*}:
+    set {alivemobs::%loop-value%} to 0
+    loop {moblocations::%loop-value%::*}:
+      spawnMob(loop-value-2, loop-value-1)
+      wait 1 tick
+      add 1 to {alivemobs::%loop-value-1%}
+
+command /addmobloc <text>:
+  permission: op
+  trigger:
+    if {mobtypes::*} contains arg-1:
+      add player's location to {moblocations::%arg-1%::*}
+      send "&aAdded location!"
+    else:
+      send "&cInvalid mobtype."
+command /clearmobloc <text>:
+  permission: op
+  trigger:
+    if {mobtypes::*} contains arg-1:
+      delete {moblocations::%arg-1%::*}
+      send "&aCleared locations!"
+    else:
+      send "&cInvalid mobtype."      
+every 15 seconds:
+  loop {mobtypes::*}:
+    if {alivemobs::%loop-value%} ? 0 < (size of {moblocations::%loop-value%::*}):
+      while {alivemobs::%loop-value%} ? 0 < (size of {moblocations::%loop-value%::*}):
+        spawnMob(random element out of {moblocations::%loop-value%::*}, loop-value-1)
+        wait 1 tick
+        add 1 to {alivemobs::%loop-value-1%}
+
+on death:
+  set {_n} to metadata value "name" of victim
+  if {mobtypes::*} contains {_n}:
+    remove 1 from {alivemobs::%{_n}%}
