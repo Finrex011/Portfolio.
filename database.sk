@@ -1,0 +1,63 @@
+command /database [<text>] [<integer>]:
+  permission: skript.database
+  trigger:
+    if {databaseid} is not set:
+      set {databaseid} to 0
+    if arg-1 is "add":
+      add player's tool to {database::*}
+      set {database::%{databaseid}%} to player's tool
+      send "&aAdded your tool to the database!" to the player
+      add 1 to {databaseid}
+      delete {database::%{databaseid}%}
+    if arg-1 is "set":
+      set {database::%arg-2%} to player's tool
+      send "&aSet your tool to database %arg-2%!" to the player
+    if arg-1 is "open":
+      openDatabase(player)
+    if arg-1 is not set:
+      openDatabase(player)
+
+
+
+function openDatabase(p: player):
+  if {sorting::%{_p}'s uuid%} is not set:
+    set {sorting::%{_p}'s uuid%} to "Time"
+
+  if {database::%{_p}%} is not set:
+    set {database::%{_p}%} to 1
+  set {_g} to chest inventory with 6 rows named "&8Database page %{database::%{_p}%}%"
+  set {_m} to 0
+  set {_n} to 0
+  set slot 46 and 47 and 48 and 49 and 50 and 51 and 52 of {_g} to gray stained glass pane named " "
+  set slot 45 of {_g} to arrow named "&fPrevious Page"
+  set slot 53 of {_g} to arrow named "&fNext Page"
+
+  if {database::%{_p}%} is not 1:
+    add {database::%{_p}%} * 45 to {_n}
+
+  loop 44 times:
+    set slot {_m} of {_g} to {database::%{_n}%}
+    add 1 to {_n}
+    add 1 to {_m}      
+
+  open {_g} for {_p}
+
+
+
+on inventory click:
+  name of player's inventory contains "Database page"
+  cancel event
+  if event-slot is 45:
+    remove 1 from {database::%player%}
+    openDatabase(player)
+  else if event-slot is 53:
+    add 1 to {database::%player%}
+    openDatabase(player)
+  else:
+    clicked slot is not 46 or 47 or 48 or 49 or 50 or 51 or 52
+    give event-item to the player
+
+
+
+on tab complete of "/database":
+  set tab completions for position 1 to "add" and "set" and "open"
