@@ -1,0 +1,93 @@
+command /setwarp <text>:
+    permission: skript.setwarp
+    trigger:
+        add arg-1 in strict proper case to {warps::*}
+        send "&aAdded the warp."
+        set {location::warp::%arg-1 in strict proper case%} to player's location
+
+command /warp <text>:
+	trigger:
+		if {warps::*} contains arg-1:
+			teleport player to {location::warp::%arg-1 in strict proper case%}
+			play sound "entity.enderman.teleport" for the player
+			send "&aTeleported to %arg-1 in strict proper case%."
+
+on tab complete of "/warp":
+    set tab completions for position 1 to {warps::*}
+
+command /enderchest [<offline player>]:
+    aliases: ec
+    usage: &cPlease use /enderchest <player>
+    trigger:
+        if arg-1 is set:
+            if player has permission "skript.enderchest.others":
+                open arg-1's enderchest for the player
+                play sound "block.ender_chest.open" for the player
+            else:
+                send "&cYou do not have permission." to the player
+        else:
+            open player's enderchest for the player
+            play sound "block.ender_chest.open" for the player
+
+command /invsee <offline player>:
+    permission: skript.invsee
+    usage: &cPlease use /invsee <player>
+    aliases: inventorysee
+    trigger:
+        open arg-1's inventory for the player
+
+on join:
+    if {players::*} contains the player:
+        set the join message to "&a➡ %player's prefix%%player%"
+    else:
+        add player to {players::*}
+        set the join message to "&a➡ %player's prefix%%player% &e[First Join #%amount of offline players%]"
+on leave:
+    set the leave message to "&c⬅ %player's prefix%%player%"
+
+
+on command "/skript reload" or "/sk reload":
+    broadcast "&7A staff member is reloading a file! The server may temporarily lag."
+
+on command "/me" or "/minecraft:":
+    cancel event
+
+command /gmc:
+    permission: skript.gmc
+    trigger:
+        set player's gamemode to creative
+        send "&aGamemode set to creative." to the player
+command /gms:
+    permission: skript.gms
+    trigger:
+        set player's gamemode to survival
+        send "&aGamemode set to survival." to the player
+command /gmsp:
+    permission: skript.gmsp
+    trigger:
+        set player's gamemode to spectator
+        send "&aGamemode set to spectator." to the player
+
+command /trash:
+  aliases: disposal
+  trigger:
+    open chest inventory with 6 rows named "&8Disposal" for the player
+    play sound "block.chest.open" for the player
+
+command /craft:
+  trigger:
+    open crafting table for the player
+    play sound "block.wood.place" for the player
+
+command /fix:
+  permission: skript.fix
+  trigger:
+    set durability of player's tool to max durability of player's tool
+    send "&aFixed your item!" to the player
+
+command /fixall:
+  permission: skript.fix
+  trigger:
+    loop player's inventory:
+      set durability of loop-value to max durability of loop-value
+    send "&aFixed all items in your inventory!" to the player

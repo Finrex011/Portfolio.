@@ -1,0 +1,52 @@
+on damage:
+  attacker is a player
+  victim is a player
+  attacker is not victim
+
+  if {combatenabled::%attacker's uuid%} and {combatenabled::%victim's uuid%} is not false:
+
+    set {combat::%attacker's uuid%} and {combat::%victim's uuid%} to true
+    set {combattimer::%attacker's uuid%} and {combattimer::%victim's uuid%} to 20
+
+on join:
+  while player is online:
+    wait 1 second
+    if {combat::%player's uuid%} is true:
+      if player's gliding state is off:
+        remove 1 from {combattimer::%player's uuid%}
+        send action bar "&8[ &cYou are in combat for %{combattimer::%player's uuid%}% more seconds. &8]" to the player
+      else:
+        send action bar "&8[ &cCombat timer frozen while gliding. &8]" to the player
+      if {combattimer::%player's uuid%} <= 0:
+        set {combat::%player's uuid%} to false
+        send action bar "&8[ &aYou are now out of combat! &8]" to the player
+
+on respawn:
+  set {combat::%player's uuid%} to false
+  set {combattimer::%player's uuid%} to 0
+
+on any command:
+  player is not an operator
+  if {combat::%player's uuid%} is true:
+    cancel event
+    send "&cYou can't execute commands in combat!" to the player
+
+on region enter:
+  wait 1 tick
+  {combat::%player's uuid%} is true
+  if "%region at player%" contains "spawn":
+    while "%region at player%" contains "spawn":
+      push player (vector from location(x coordinate of {spawn}, player's y coordinate, z coordinate of {spawn}) to player) with speed 1.5
+      push player upward with speed 0.8
+      send "&cYou cannot enter spawn in combat!" to the player
+      wait 0.5 seconds
+
+command /togglecombat:
+  permission: op
+  trigger:
+    if {combatenabled::%player's uuid%} is not false:
+      set {combatenabled::%player's uuid%} to false
+      send "&aCombat turned off."
+    else:
+      set {combatenabled::%player's uuid%} to true
+      send "&aCombat turned on."

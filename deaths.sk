@@ -1,0 +1,50 @@
+on death:
+  add 1 to {deathid}
+  victim is a player
+  if attacker is a player:
+    set death message to "&c☠ &7%victim% was slain by %attacker%" or "&c☠ &7%victim% was murdered by %attacker%" or "&c☠ &7%victim% was dropped by %attacker%" or "&c☠ &7%attacker% jumped %victim%" or "&c☠ &7%victim% was absolutely destroyed by %attacker%"
+
+  if attacker is not a player:
+    set death message to "&c☠ &7%victim% dissapeared" or "&c☠ &7%victim% left with the wind" or "&c☠ &7%victim% spontaneously combusted" or "&c☠ &7%victim% just died" or "&c☠ &7%victim% is no where to be found"
+  
+  set {deathdrop::%{deathid}%::%victim's name%} to chest inventory with 6 rows named "&8%victim%'s Loot (%{deathid} ? 0%)"
+  set {_s} to 0
+  loop victim's inventory:
+    if loop-value is not netherite pickaxe:
+      set slot {_s} of {deathdrop::%{deathid}%::%victim's name%} to loop-value
+    add 1 to {_s}
+  wait 0.1 seconds
+  drop barrel named "&c%victim%'s Loot &7(%{deathid}%)" with lore "%victim%" at victim
+
+on right click with barrel:
+  set {_n} to uncolored name of player's tool
+  set {_l} to raw line 1 of lore of player's tool
+  if {_l} is set:
+    play sound "block.barrel.open" for the player
+    replace all {_l} and "'s loot" and " " and "(" and ")" in {_n} with ""
+    open {deathdrop::%{_n}%::%{_l}%} for the player
+
+on inventory close:
+  if name of player's inventory contains "'s loot (":
+    replace all "'s loot" and "(" and ")" in {_n} with ""
+    replace all {_n} and "'s loot" and "(" and ")" in {_m} with ""
+    set {_s} to 0
+    loop items in player's top inventory:
+      set slot {_s} of {deathdrop::%{_m}%::%{_n}%} to loop-value
+      add 1 to {_s}
+      if loop-value is not air:
+        set {_delete} to false
+    if {_delete} is not false:
+      player's tool is a barrel
+      remove player's tool from the player
+
+on inventory click:
+  if event-item is barrel:
+    if name of player's inventory contains "'s loot (":
+      event-inventory is player's inventory
+      cancel event
+      send "&cYou can't put that in there!" to the player
+      play sound "entity.villager.no" for the player
+
+on place of barrel:
+  cancel event
